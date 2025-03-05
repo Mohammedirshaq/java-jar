@@ -70,3 +70,7 @@ The project automatically appears in SonarQube (http://localhost:9000/projects).
 Code analysis is performed.
 
 
+
+sh '#mvn sonar:sonar -Dsonar.token=$SONARQUBE_TOKEN'
+
+
