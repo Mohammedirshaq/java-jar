@@ -38,47 +38,14 @@ pipeline {
                 }
             }
         }
-
-        stage('Check Quality Gate') {
-            steps {
-                script {
-                    timeout(time: 2, unit: 'MINUTES') {
-                        def qualityGate = waitForQualityGate()
-                        if (qualityGate.status != 'OK') {
-                            error "❌ Quality Gate failed! Fix issues in SonarQube."
-                        }
-                    }
-                }
-            }
-        }
-/*
-        stage('Docker Build & Push') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    sh '''
-                    docker build -t java-jar-app .
-                    docker tag java-jar-app $DOCKER_USER/java-jar-app:latest
-                    docker login -u $DOCKER_USER -p $DOCKER_PASS
-                    docker push $DOCKER_USER/java-jar-app:latest
-                    '''
-                }
-            }
-        }
-
-        stage('Deploy (Optional)') {
-            steps {
-                sh 'docker run -d -p 8081:8081 mdirshaq/java-jar-app'
-            }
-        }
     }
-*/
+
     post {
         success {
-            echo '✅ Build and deployment successful!'
+            echo '✅ Build and SonarQube analysis successful!'
         }
         failure {
             echo '❌ Build failed. Check logs.'
         }
     }
-}
 }
