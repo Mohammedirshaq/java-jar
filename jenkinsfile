@@ -32,9 +32,7 @@ pipeline{
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {  // Must match SonarQube name in Jenkins config
-                    sh '#mvn sonar:sonar -Dsonar.token=$SONARQUBE_TOKEN'
-
-                     sh """
+                    sh """
                     mvn sonar:sonar \
                     -Dsonar.projectKey=$SONAR_PROJECT_KEY \
                     -Dsonar.projectName=$SONAR_PROJECT_NAME \
