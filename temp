@@ -1,0 +1,75 @@
+pipeline{
+  agent any
+    environment {
+        SONARQUBE_URL = 'http://35.211.186.41:9000' /* http://localhost:9000 */
+        SONARQUBE_TOKEN = credentials('sonar-token') // Store in Jenkins Credentials
+        SONAR_PROJECT_KEY = 'simple-java-maven-app'   // SonarQube project key
+        SONAR_PROJECT_NAME = 'Simple Java Maven App'
+       
+    }
+
+
+        stages{
+                  stage('Create SonarQube Project') {
+            steps {
+                script {
+                    sh """
+                    curl -X POST -u $SONARQUBE_TOKEN: \
+                    "$SONARQUBE_URL/api/projects/create?project=$SONAR_PROJECT_KEY&name=$SONAR_PROJECT_NAME"
+                    """
+                }
+            }
+        }
+
+           stage('Build & Test') {
+                  steps {
+                      sh 'mvn clean package'
+                  }
+              }
+
+
+
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('SonarQube') {  // Must match SonarQube name in Jenkins config
+                    sh """
+                    mvn sonar:sonar \
+                    -Dsonar.projectKey=$SONAR_PROJECT_KEY \
+                    -Dsonar.projectName=$SONAR_PROJECT_NAME \
+                    -Dsonar.host.url=$SONARQUBE_URL
+                    """
+                }
+            }
+          }
+/*
+        stage('Docker Build & Push') {
+                    steps {
+                        sh '''
+                        docker build -t java-jar-app .
+                        //docker tag java-jar-app your-dockerhub-username/java-jar-app:latest 
+                        docker tag java-jar-app mdirshaq/java-jar-app:latest
+                       // docker login -u your-dockerhub-username -p your-dockerhub-password
+                        docker login -u mdirshaq -p Hai@2003md
+                        //docker push your-dockerhub-username/java-jar-app:latest
+                        docker push mdirshaq/java-jar-app:latest
+                        '''
+                    }
+                }
+        
+                stage('Deploy (Optional)') {
+                    steps {
+                        sh 'docker run -d -p 8081:8081 mdirshaq/java-jar-app'
+                    }
+                }
+*/
+            }
+        
+            post {
+                success {
+                    echo 'Build and deployment successful!'
+                }
+                failure {
+                    echo 'Build failed. Check logs.'
+                }    
+          }  
+      }
