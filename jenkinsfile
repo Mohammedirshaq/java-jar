@@ -9,7 +9,8 @@ pipeline{
     }
 
 
-        stage('Create SonarQube Project') {
+        stages{
+                  stage('Create SonarQube Project') {
             steps {
                 script {
                     sh """
@@ -19,12 +20,14 @@ pipeline{
                 }
             }
         }
-        stages{
+
            stage('Build & Test') {
                   steps {
                       sh 'mvn clean package'
                   }
               }
+
+
 
         stage('SonarQube Analysis') {
             steps {
